@@ -1,6 +1,7 @@
 # Networking
 
 ## Namespacing
+
 Docker containers have dedicated network namespaces created by docker.
 This namespaces are not visible using the `ip netns ls` by default. This is because the list of currently active namespaces that is maintained in `/var/run/netns` is not updated by docker.
 To allow visualization of these namespaces the following commands can be used:
@@ -8,11 +9,12 @@ To allow visualization of these namespaces the following commands can be used:
 ```
 pid=`docker inspect -f '{{.State.Pid}}' $container_id`
 ln -s /proc/$pid/ns/net /var/run/netns/$container_idhttp://stackoverflow.com/questions/31265993/docker-networking-namespace-not-visible-in-ip-netns-list
-``
+```
 
 Taken from: http://stackoverflow.com/questions/31265993/docker-networking-namespace-not-visible-in-ip-netns-list
 
 ## Overlay network
+
 Docker overlay network is based on vxlan.
 Since the overlay network in docker is just another driver type we create it like any other network using `docker network create` for example: `docker network create --driver overlay --subnet 10.0.9.0/24 my-multi-host-network`.
 When we create an overlay network a namespace is created for that network on every host that is connected to the cluster.
