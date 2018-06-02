@@ -66,13 +66,28 @@ Note that more information can be found on the zabbix guide https://www.zabbix.c
 
 ### Start the container
 
+Start the zabbix server
 ```
 docker run \
     -p 10051:10051 \
+    --link zabbix-mysql \
+    --name zabbix-server \
+    -e DB_SERVER_HOST=zabbix-mysql \
+    -e MYSQL_USER=zabbix \
+    -e MYSQL_PASSWORD=zabbix \
+    --restart=always \
+    -d \
+    zabbix/zabbix-server-mysql:ubuntu-3.0.17
+```
+
+Start the zabbix frontend
+```
+docker run \
     -p 10080:80 \
     --link zabbix-mysql \
     --link zabbix-java-gateway \
-    --name zabbix-server \
+    --link zabbix-server \
+    --name zabbix-frontend \
     -e DB_SERVER_HOST=zabbix-mysql \
     -e ZBX_JAVAGATEWAY="zabbix-java-gateway" \
     -e MYSQL_USER=zabbix \
@@ -95,5 +110,13 @@ The default username/password is Admin/zabbix.
 ## Agents
 
 ```
-docker run --name dn21-zabbix-agent --privileged --restart=always -e ZBX_SERVER_HOST=100.64.1.44 -d zabbix/zabbix-agent:ubuntu-3.0.17
+docker run \
+    -p 10050:10050 \
+    --name zabbix-agent \
+    --privileged \
+    --restart=always \
+    -e ZBX_SERVER_HOST=100.64.1.44 \
+    -e ZBX_HOSTNAME=$(hostname) \
+    -d \
+    zabbix/zabbix-agent:ubuntu-3.0.17
 ```
